@@ -44,9 +44,15 @@ def find_probability_map_from_frequency_map(temp_frequency_map, nGram):
         for key in temp_frequency_map.keys():
             value = temp_frequency_map[key]
             if args.smoothing == '0':
-                temp[key] = float(value / bigramFrequencyMap[(key[0], key[1])])
+                if (key[0], key[1]) in bigramFrequencyMap:
+                    temp[key] = float(value / bigramFrequencyMap[(key[0], key[1])])
+                else:
+                    temp[key] = 0
             else:
-                temp[key] = float(value / (bigramFrequencyMap[(key[0], key[1])] + len(bigramFrequencyMap)))
+                if (key[0], key[1]) in bigramFrequencyMap:
+                    temp[key] = float(value / (bigramFrequencyMap[(key[0], key[1])] + len(bigramFrequencyMap)))
+                else:
+                    temp[key] = float(1 / (1 + len(bigramFrequencyMap)))
     return temp
 
 
@@ -97,7 +103,6 @@ print("Total Sentences", totalSentences)
 bigramProbabilityMap = find_probability_map_from_frequency_map(bigramFrequencyMap, args.nGram)
 trigramProbabilityMap = find_probability_map_from_frequency_map(trigramFrequencyMap, '3')
 
-print(trigramProbabilityMap)
 
 
 def print_bigram_matrix(temp_words):
@@ -130,29 +135,9 @@ def print_bigram_matrix(temp_words):
         for row in probability_matrix:
             print(row)
 
-    else:
-        print("\n::Frequency Matrix::")
-        for k in range(0, len(temp_words)):
-            for l in range(0, len(temp_words)):
-                if (temp_words[k], temp_words[l]) in bigramFrequencyMap and args.smoothing == '0':
-                    frequency_matrix[k][l] = bigramFrequencyMap[(temp_words[k], temp_words[l])]
-                elif (temp_words[k], temp_words[l]) in bigramFrequencyMap and args.smoothing == '1':
-                    frequency_matrix[k][l] = bigramFrequencyMap[(temp_words[k], temp_words[l])] + 1
 
-        for row in frequency_matrix:
-            print(row)
-
-        print("\n::Probability Matrix::")
-        for k in range(0, len(frequency_matrix)):
-            for l in range(0, len(frequency_matrix[0])):
-                if args.smoothing == '0':
-                    probability_matrix[k][l] = float(frequency_matrix[k][l] / wordToFrequencyMap[temp_words[k]])
-                else:
-                    probability_matrix[k][l] = float(
-                        frequency_matrix[k][l] / (wordToFrequencyMap[temp_words[k]] + len(wordToFrequencyMap)))
-
-        for row in probability_matrix:
-            print(row)
+def print_trigram_matrix(temp_frequency_map):
+    return
 
 
 def test(temp_sentence):
@@ -184,15 +169,16 @@ def test(temp_sentence):
     else:
         for j in range(0, len(test_words) - 2):
             if (test_words[j], test_words[j + 1], test_words[j + 2]) in trigramFrequencyMap and args.smoothing == '0':
-                test_bigram_frequency_map[(test_words[j], test_words[j + 1], test_words[j + 2])] = trigramFrequencyMap[(test_words[j], test_words[j + 1], test_words[j + 2])]
+                test_trigram_frequency_map[(test_words[j], test_words[j + 1], test_words[j + 2])] = trigramFrequencyMap[(test_words[j], test_words[j + 1], test_words[j + 2])]
             elif (test_words[j], test_words[j + 1], test_words[j + 2], test_words[j + 2]) in trigramFrequencyMap and args.smoothing == '1':
-                test_bigram_frequency_map[(test_words[j], test_words[j + 1], test_words[j + 2])] = trigramFrequencyMap[(test_words[j], test_words[j + 1], test_words[j + 2])] + 1
+                test_trigram_frequency_map[(test_words[j], test_words[j + 1], test_words[j + 2])] = trigramFrequencyMap[(test_words[j], test_words[j + 1], test_words[j + 2])] + 1
             elif args.smoothing == '0':
-                test_bigram_frequency_map[(test_words[j], test_words[j + 1])] = 0
+                test_trigram_frequency_map[(test_words[j], test_words[j + 1])] = 0
             elif args.smoothing == '1':
-                test_bigram_frequency_map[(test_words[j], test_words[j + 1])] = 1
+                test_trigram_frequency_map[(test_words[j], test_words[j + 1])] = 1
 
-        test_trigram_probability_map = find_probability_map_from_frequency_map(test_bigram_frequency_map, '3')
+        print_trigram_matrix(test_trigram_frequency_map)
+        test_trigram_probability_map = find_probability_map_from_frequency_map(test_trigram_frequency_map, '3')
         probability = 1.0
         for key in test_trigram_probability_map:
             probability *= test_trigram_probability_map[key]
