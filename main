@@ -183,14 +183,21 @@ def test(temp_sentence):
         return probability
     else:
         for j in range(0, len(test_words) - 2):
-            if (test_words[j], test_words[j + 1], test_words[j + 2]) in bigramFrequencyMap and args.smoothing == '0':
+            if (test_words[j], test_words[j + 1], test_words[j + 2]) in trigramFrequencyMap and args.smoothing == '0':
                 test_bigram_frequency_map[(test_words[j], test_words[j + 1], test_words[j + 2])] = trigramFrequencyMap[(test_words[j], test_words[j + 1], test_words[j + 2])]
-            elif (test_words[j], test_words[j + 1], test_words[j + 2], test_words[j + 2]) in bigramFrequencyMap and args.smoothing == '1':
+            elif (test_words[j], test_words[j + 1], test_words[j + 2], test_words[j + 2]) in trigramFrequencyMap and args.smoothing == '1':
                 test_bigram_frequency_map[(test_words[j], test_words[j + 1], test_words[j + 2])] = trigramFrequencyMap[(test_words[j], test_words[j + 1], test_words[j + 2])] + 1
             elif args.smoothing == '0':
                 test_bigram_frequency_map[(test_words[j], test_words[j + 1])] = 0
             elif args.smoothing == '1':
                 test_bigram_frequency_map[(test_words[j], test_words[j + 1])] = 1
+
+        test_trigram_probability_map = find_probability_map_from_frequency_map(test_bigram_frequency_map, '3')
+        probability = 1.0
+        for key in test_trigram_probability_map:
+            probability *= test_trigram_probability_map[key]
+
+        return probability
 
 
 print("\n:::::::::::::::::::::::::::::::::::::::::::::::::::Test for Sentence 1::::::::::::::::::::::::::::::::::::::::")
