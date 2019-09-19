@@ -1,3 +1,4 @@
+<h1> N-Grams </h1>
 In order to run the code you will have to write the following command:
 > python main -N 2 -b 0
 
